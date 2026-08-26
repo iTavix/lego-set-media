@@ -476,6 +476,14 @@ const viaProxy = url =>
   : PROXY.includes("{url}") ? PROXY.replace("{url}", encodeURIComponent(url))
   : PROXY + encodeURIComponent(url);
 
+/*
+ * Su Cloudflare Pages una funzione serve gli stessi file sotto /lego/,
+ * cioè sullo stesso dominio dell'app: così la questione CORS non si pone.
+ * Altrove il percorso non esiste e la sonda passa oltre.
+ */
+const viaSameOrigin = url =>
+  new URL("lego/" + url.replace(/^https:\/\/www\.lego\.com\//, ""), location.href).href;
+
 /* ============================================================
    Utility
    ============================================================ */
@@ -527,7 +535,7 @@ function saveBlob(blob, filename) {
 
 /** Scarica i byte originali, senza toccarli. */
 async function fetchFile(a, onProgress) {
-  const res = await fetch(viaProxy(a.url));
+  const res = await fetch(route(a.url));
   if (!res.ok) throw new Error("HTTP " + res.status);
   const type = res.headers.get("content-type") || "application/octet-stream";
   const total = +(res.headers.get("content-length") || 0);
@@ -712,12 +720,26 @@ const thumbUrl = (url, w = 560) =>
    ============================================================ */
 const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false, access: null };
 
-/** Il browser riesce a leggere i byte dal CDN (eventualmente via proxy)? */
+/** Come si arriva ai byte da qui. Impostata dalla sonda, usata da ogni download. */
+let route = url => url;
+
+/** Prova le strade possibili e tiene la prima che funziona. */
 async function probeAccess(sampleUrl) {
-  try {
-    const r = await fetch(viaProxy(sampleUrl), { headers: { Range: "bytes=0-64" } });
-    return r.ok ? (PROXY ? "proxy" : "direct") : "blocked";
-  } catch { return "blocked"; }
+  const strade = [];
+  if (PROXY) strade.push(["proxy", viaProxy]);
+  strade.push(["sameorigin", viaSameOrigin], ["direct", u => u]);
+
+  for (const [nome, fn] of strade) {
+    try {
+      const r = await fetch(fn(sampleUrl), { headers: { Range: "bytes=0-64" } });
+      // Una 404 di GitHub Pages risponde con HTML: non è il file che cerchiamo.
+      if (r.ok && !/text\/html/i.test(r.headers.get("content-type") || "")) {
+        route = fn;
+        return nome;
+      }
+    } catch { /* strada non percorribile, si prova la successiva */ }
+  }
+  return "blocked";
 }
 
 /** Riquadro mostrato quando il download è bloccato: spiega e chiede l'indirizzo. */
@@ -924,7 +946,7 @@ async function loadMeta() {
 
   const dims = async a => {
     if (a.kind !== "image") return null;
-    const r = await fetch(viaProxy(a.url), { headers: { Range: "bytes=0-65535" } });
+    const r = await fetch(route(a.url), { headers: { Range: "bytes=0-65535" } });
     const b = new Uint8Array(await r.arrayBuffer());
     if (b[0] === 0x89 && b[1] === 0x50) {                       // PNG
       const dv = new DataView(b.buffer);
@@ -951,7 +973,7 @@ async function loadMeta() {
       const ext = (a.name.split(".").pop() || "").toUpperCase();
       try {
         const [head, d] = await Promise.all([
-          fetch(viaProxy(a.url), { method: "HEAD" }).then(r => +(r.headers.get("content-length") || 0)).catch(() => 0),
+          fetch(route(a.url), { method: "HEAD" }).then(r => +(r.headers.get("content-length") || 0)).catch(() => 0),
           dims(a).catch(() => null),
         ]);
         a.bytes = head || null;

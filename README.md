@@ -103,8 +103,30 @@ ricomprime (quindi niente byte originali) e non gestisce i video.
   disponibile. Il comportamento effettivo del pannello iOS resta da
   confermare sul dispositivo.
 
+## Pubblicazione su Cloudflare Pages
+
+Il codice resta su GitHub; Cloudflare lo prende dal repo e ripubblica a ogni push.
+
+Serve perché `functions/lego/[[path]].js` gira solo su Cloudflare: è una
+funzione che rilancia le richieste al CDN LEGO **dallo stesso dominio dell'app**,
+così la questione CORS non si pone e i byte arrivano identici, video inclusi.
+Non è un proxy aperto: accetta solo percorsi `cdn/cs/set/assets/…`.
+
+Impostazioni del progetto Pages:
+
+- Framework preset: **None**
+- Build command: **vuoto**
+- Build output directory: **/**
+
+L'app sceglie da sola la strada per i file, provando in quest'ordine:
+proxy configurato a mano → `/lego/…` sullo stesso dominio → richiesta diretta
+(che funziona solo da `localhost`). Se nessuna funziona, lo dice invece di
+fallire in silenzio.
+
+Su GitHub Pages resta consultabile — galleria, anteprime, copia degli
+indirizzi — ma senza download, per il vincolo qui sopra.
+
 ## Pubblicazione
 
-È una pagina statica: basta metterla su GitHub Pages.
 Le immagini e i video appartengono al Gruppo LEGO; lo strumento non è
 affiliato né approvato da LEGO System A/S.
