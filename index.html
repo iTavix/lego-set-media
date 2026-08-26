@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Set Media — immagini e video dei set LEGO</title>
+<meta name="description" content="Inserisci il codice di un set LEGO e ottieni tutte le immagini e i video della pagina prodotto, alla risoluzione originale.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧱</text></svg>">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --bg:#fbfbfd; --bg-elev:#ffffff; --bg-sunken:#f2f2f5;
+  --text:#1d1d1f; --text-2:#6e6e73; --text-3:#a1a1a6;
+  --line:rgba(0,0,0,.09); --line-strong:rgba(0,0,0,.16);
+  --accent:#0071e3; --accent-hover:#0077ed; --accent-soft:rgba(0,113,227,.10);
+  --danger:#d70015; --ok:#1d9d4f;
+  --checker:rgba(0,0,0,.045);
+  --shadow-s:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
+  --shadow-m:0 4px 10px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.10);
+  --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:28px;
+  --ease:cubic-bezier(.32,.72,0,1);
+  --maxw:1240px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000000; --bg-elev:#1c1c1e; --bg-sunken:#141416;
+    --text:#f5f5f7; --text-2:#a1a1a6; --text-3:#6e6e73;
+    --line:rgba(255,255,255,.11); --line-strong:rgba(255,255,255,.2);
+    --accent:#0a84ff; --accent-hover:#409cff; --accent-soft:rgba(10,132,255,.16);
+    --danger:#ff453a; --ok:#30d158;
+    --checker:rgba(255,255,255,.05);
+    --shadow-s:0 1px 2px rgba(0,0,0,.5); --shadow-m:0 16px 40px rgba(0,0,0,.6);
+  }
+}
+/* ---------- base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
+  font-size:17px; line-height:1.47; letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+button,input,select{font:inherit; color:inherit}
+button{cursor:pointer; border:0; background:none}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:6px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+@media (max-width:600px){ .wrap{padding:0 18px} body{font-size:16px} }
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 40px; text-align:center}
+@media (max-width:600px){ .hero{padding:44px 0 28px} }
+.brand{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:26px;
+  font-size:13px; font-weight:590; letter-spacing:.02em; color:var(--text-2);
+  padding:7px 14px 7px 11px; border:1px solid var(--line); border-radius:100px;
+  background:var(--bg-elev);
+}
+.brand svg{width:16px; height:16px; color:var(--accent)}
+h1{
+  margin:0 0 14px; font-size:clamp(34px,5.2vw,60px); line-height:1.06;
+  font-weight:680; letter-spacing:-.028em;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;
+}
+.sub{margin:0 auto; max-width:600px; font-size:clamp(16px,1.6vw,20px); color:var(--text-2); letter-spacing:-.012em}
+
+/* ---------- search ---------- */
+.search{
+  display:flex; gap:10px; align-items:center; justify-content:center;
+  margin:34px auto 0; max-width:620px; flex-wrap:wrap;
+}
+.field{
+  position:relative; flex:1 1 300px; min-width:0;
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg-elev); border:1px solid var(--line);
+  border-radius:100px; padding:0 8px 0 18px; height:54px;
+  box-shadow:var(--shadow-s); transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.field:focus-within{border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+.field svg{width:19px; height:19px; color:var(--text-3); flex:none}
+#code{
+  flex:1; min-width:0; border:0; background:none; height:100%;
+  font-size:17px; letter-spacing:-.01em; outline:none;
+}
+#code::placeholder{color:var(--text-3)}
+#locale{
+  border:0; background:var(--bg-sunken); border-radius:100px; height:38px;
+  padding:0 30px 0 13px; font-size:14px; font-weight:510; color:var(--text-2);
+  outline:none; cursor:pointer; flex:none;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 11px center;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  height:54px; padding:0 26px; border-radius:100px; flex:none;
+  background:var(--accent); color:#fff; font-size:16px; font-weight:590; letter-spacing:-.01em;
+  transition:background .18s var(--ease), transform .18s var(--ease), opacity .18s;
+}
+.btn:hover{background:var(--accent-hover)}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.45; pointer-events:none}
+.btn svg{width:17px; height:17px}
+.hint{margin:16px 0 0; font-size:13.5px; color:var(--text-3)}
+.hint b{font-weight:590; color:var(--text-2)}
+.examples{display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin-top:14px}
+.chip{
+  padding:6px 13px; border-radius:100px; border:1px solid var(--line);
+  background:var(--bg-elev); font-size:13px; font-weight:510; color:var(--text-2);
+  transition:border-color .18s, color .18s, transform .18s var(--ease);
+}
+.chip:hover{border-color:var(--line-strong); color:var(--text); transform:translateY(-1px)}
+
+/* ---------- status ---------- */
+#status{margin:44px auto; text-align:center; display:none}
+#status.on{display:block}
+.spinner{
+  width:26px; height:26px; margin:0 auto 16px; border-radius:50%;
+  border:2.5px solid var(--line); border-top-color:var(--accent);
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status-text{font-size:15px; color:var(--text-2)}
+.err{
+  max-width:560px; margin:0 auto; text-align:left;
+  background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--r-l);
+  padding:24px 26px; box-shadow:var(--shadow-s);
+}
+.err h3{margin:0 0 8px; font-size:19px; font-weight:620; letter-spacing:-.018em; display:flex; align-items:center; gap:9px}
+.err h3 svg{width:20px; height:20px; color:var(--danger); flex:none}
+.err p{margin:0 0 6px; font-size:15px; color:var(--text-2)}
+.err ul{margin:10px 0 0; padding-left:20px; font-size:14.5px; color:var(--text-2)}
+.err li{margin:5px 0}
+
+/* ---------- product header ---------- */
+#product{display:none; margin-top:12px}
+#product.on{display:block}
+.phead{
+  display:flex; gap:24px; align-items:center;
+  background:var(--bg-elev); border:1px solid var(--line);
+  border-radius:var(--r-xl); padding:22px; box-shadow:var(--shadow-s);
+}
+@media (max-width:680px){ .phead{flex-direction:column; align-items:stretch; text-align:center; gap:16px} }
+.phead-img{
+  width:120px; height:120px; flex:none; border-radius:var(--r-m);
+  background:var(--bg-sunken); object-fit:contain; padding:6px;
+}
+@media (max-width:680px){ .phead-img{width:100px; height:100px; margin:0 auto} }
+.phead-body{flex:1; min-width:0}
+.phead h2{margin:0 0 5px; font-size:clamp(21px,2.4vw,28px); font-weight:650; letter-spacing:-.022em; line-height:1.2}
+.phead .meta{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+@media (max-width:680px){ .phead .meta{justify-content:center} }
+.tag{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 12px; border-radius:100px; background:var(--bg-sunken);
+  font-size:13px; font-weight:510; color:var(--text-2); letter-spacing:-.005em;
+}
+.tag.accent{background:var(--accent-soft); color:var(--accent)}
+.phead .code{font-size:14px; color:var(--text-3); font-variant-numeric:tabular-nums}
+.phead-link{
+  display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+  font-size:14px; font-weight:510;
+}
+.phead-link svg{width:14px; height:14px}
+
+/* ---------- toolbar ---------- */
+#toolbar{display:none; position:sticky; top:0; z-index:30; margin-top:34px}
+#toolbar.on{display:block}
+.tbar{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:13px 0;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--line);
+}
+.tcount{font-size:15px; font-weight:590; letter-spacing:-.012em; margin-right:auto}
+.tcount span{color:var(--text-2); font-weight:400}
+.gbtn{
+  display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 15px;
+  border-radius:100px; border:1px solid var(--line); background:var(--bg-elev);
+  font-size:14px; font-weight:510; color:var(--text);
+  transition:border-color .18s, background .18s, transform .18s var(--ease);
+}
+.gbtn:hover{border-color:var(--line-strong); transform:translateY(-1px)}
+.gbtn:active{transform:scale(.97)}
+.gbtn[disabled]{opacity:.4; pointer-events:none}
+.gbtn svg{width:15px; height:15px; color:var(--text-2)}
+.gbtn.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:590}
+.gbtn.primary svg{color:#fff}
+.gbtn.primary:hover{background:var(--accent-hover); border-color:var(--accent-hover)}
+/* in attesa del tocco che apre il pannello di sistema */
+.gbtn.ready{background:var(--ok); border-color:var(--ok); animation:pulse 1.8s var(--ease) infinite}
+.gbtn.ready:hover{background:var(--ok); border-color:var(--ok)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,157,79,.45)}50%{box-shadow:0 0 0 7px rgba(29,157,79,0)}}
+.progress{
+  position:absolute; left:0; bottom:0; height:2px; background:var(--accent);
+  width:0; transition:width .25s var(--ease); border-radius:2px;
+}
+.tbar{position:relative}
+
+/* ---------- grid ---------- */
+#results{display:none; padding-bottom:100px}
+#results.on{display:block}
+.group-title{
+  margin:38px 0 16px; font-size:13px; font-weight:620; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--text-3);
+  display:flex; align-items:center; gap:9px;
+}
+.group-title::after{content:""; flex:1; height:1px; background:var(--line)}
+.grid{
+  display:grid; gap:20px;
+  grid-template-columns:repeat(auto-fill, minmax(224px, 1fr));
+}
+@media (max-width:520px){ .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px} }
+.card{
+  position:relative; background:var(--bg-elev); border:1px solid var(--line);
+  border-radius:var(--r-l); overflow:hidden;
+  transition:transform .28s var(--ease), box-shadow .28s var(--ease), border-color .2s;
+  animation:rise .45s var(--ease) backwards;
+}
+@keyframes rise{from{opacity:0; transform:translateY(10px)}}
+.card:hover{transform:translateY(-3px); box-shadow:var(--shadow-m); border-color:var(--line-strong)}
+.card.sel{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.thumb{
+  position:relative; aspect-ratio:1/1; background:var(--bg-sunken);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden;
+  /* scacchiera leggera: rende visibile la trasparenza dei PNG senza sfondo */
+  background-image:
+    linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%),
+    linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%);
+  background-size:16px 16px;
+  background-position:0 0, 8px 8px;
+}
+.thumb.video{background-image:none}
+.thumb img{width:100%; height:100%; object-fit:contain; padding:8px; transition:transform .4s var(--ease)}
+.card:hover .thumb img{transform:scale(1.035)}
+.thumb.video img{padding:0; object-fit:cover}
+.thumb .ph{width:26px; height:26px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--text-3); animation:spin .7s linear infinite}
+.thumb .broken{font-size:12px; color:var(--text-3); padding:12px; text-align:center}
+.play{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.play i{
+  width:52px; height:52px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.25); transition:transform .28s var(--ease);
+}
+.card:hover .play i{transform:scale(1.09)}
+.play svg{width:20px; height:20px; color:#fff; margin-left:2px}
+.check{
+  position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:50%;
+  background:rgba(255,255,255,.82); border:1px solid rgba(0,0,0,.14);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  display:grid; place-items:center; z-index:3;
+  transition:background .18s, transform .18s var(--ease), opacity .18s;
+  opacity:0;
+}
+.card:hover .check, .card.sel .check{opacity:1}
+.check:active{transform:scale(.88)}
+.check svg{width:13px; height:13px; color:#fff; opacity:0}
+.card.sel .check{background:var(--accent); border-color:var(--accent); opacity:1}
+.card.sel .check svg{opacity:1}
+.badge{
+  position:absolute; top:10px; right:10px; z-index:2;
+  padding:3.5px 9px; border-radius:100px; font-size:10.5px; font-weight:620;
+  letter-spacing:.03em; text-transform:uppercase;
+  background:rgba(0,0,0,.62); color:#fff;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+.badge.vid{background:rgba(255,69,58,.9)}
+.info{padding:12px 14px 13px; border-top:1px solid var(--line)}
+.fname{
+  font-size:13px; font-weight:510; letter-spacing:-.005em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.fmeta{
+  margin-top:3px; font-size:11.5px; color:var(--text-3);
+  font-variant-numeric:tabular-nums; display:flex; align-items:center; gap:6px; min-height:16px;
+}
+.acts{display:flex; gap:6px; margin-top:11px}
+.act{
+  flex:1; height:31px; border-radius:9px; background:var(--bg-sunken);
+  display:inline-flex; align-items:center; justify-content:center; gap:5px;
+  font-size:12.5px; font-weight:510; color:var(--text-2);
+  transition:background .16s, color .16s;
+}
+.act:hover{background:var(--accent-soft); color:var(--accent)}
+.act svg{width:13px; height:13px}
+.act.icon{flex:0 0 34px}
+
+/* ---------- note ---------- */
+.note{
+  display:flex; gap:12px; align-items:flex-start; margin:16px 0 0;
+  padding:14px 16px; border-radius:var(--r-m);
+  background:var(--bg-sunken); border:1px solid var(--line);
+  font-size:13.5px; color:var(--text-2); line-height:1.5;
+}
+.note svg{width:16px; height:16px; color:var(--text-3); flex:none; margin-top:2px}
+.note b{font-weight:590; color:var(--text)}
+
+/* ---------- lightbox ---------- */
+#lb{
+  position:fixed; inset:0; z-index:100; display:none;
+  background:rgba(0,0,0,.88); -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px);
+  align-items:center; justify-content:center; padding:56px 20px;
+  animation:fade .28s var(--ease);
+}
+@keyframes fade{from{opacity:0}}
+#lb.on{display:flex}
+#lb .stage{max-width:min(1200px,94vw); max-height:88vh; display:flex; flex-direction:column; align-items:center; gap:16px}
+#lb img, #lb video{max-width:100%; max-height:78vh; border-radius:var(--r-m); object-fit:contain; background:#0a0a0a}
+#lb .cap{color:rgba(255,255,255,.72); font-size:13.5px; text-align:center; font-variant-numeric:tabular-nums}
+#lb .cap b{color:#fff; font-weight:560}
+.lbtn{
+  position:absolute; width:44px; height:44px; border-radius:50%;
+  background:rgba(255,255,255,.12); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  display:grid; place-items:center; color:#fff;
+  transition:background .18s, transform .18s var(--ease);
+}
+.lbtn:hover{background:rgba(255,255,255,.22)}
+.lbtn:active{transform:scale(.9)}
+.lbtn svg{width:19px; height:19px}
+#lbClose{top:18px; right:18px}
+#lbPrev{left:18px; top:50%; margin-top:-22px}
+#lbNext{right:18px; top:50%; margin-top:-22px}
+@media (max-width:600px){ #lbPrev{left:10px} #lbNext{right:10px} }
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed; left:50%; bottom:30px; transform:translate(-50%,90px);
+  z-index:200; padding:12px 20px; border-radius:100px;
+  background:rgba(28,28,30,.92); color:#fff; font-size:14px; font-weight:510;
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+  box-shadow:var(--shadow-m); display:flex; align-items:center; gap:8px;
+  opacity:0; transition:transform .38s var(--ease), opacity .3s; pointer-events:none;
+}
+#toast.on{transform:translate(-50%,0); opacity:1}
+#toast svg{width:16px; height:16px}
+@media (prefers-color-scheme: dark){ #toast{background:rgba(240,240,245,.94); color:#111} }
+
+/* ---------- footer ---------- */
+footer{
+  border-top:1px solid var(--line); margin-top:60px; padding:26px 0 44px;
+  font-size:12.5px; color:var(--text-3); text-align:center; line-height:1.6;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V7.5a1.5 1.5 0 0 1 3 0V9"/><path d="M13 9V7.5a1.5 1.5 0 0 1 3 0V9"/>
+      </svg>
+      Set Media
+    </div>
+    <h1>Tutte le immagini<br>e i video di un set.</h1>
+    <p class="sub">Inserisci il codice del set. Recupero la galleria completa dallo shop LEGO, alla risoluzione originale.</p>
+
+    <form class="search" id="form" autocomplete="off">
+      <label class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/>
+        </svg>
+        <input id="code" type="text" inputmode="numeric" placeholder="Codice set — es. 75457" aria-label="Codice del set LEGO">
+        <select id="locale" aria-label="Store LEGO">
+          <option value="it-it" selected>IT</option>
+          <option value="en-us">US</option>
+          <option value="en-gb">UK</option>
+          <option value="de-de">DE</option>
+          <option value="fr-fr">FR</option>
+          <option value="es-es">ES</option>
+        </select>
+      </label>
+      <button class="btn" id="go" type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        Cerca
+      </button>
+    </form>
+
+    <p class="hint">Funziona anche incollando l'indirizzo completo della pagina prodotto.</p>
+    <div class="examples" id="examples">
+      <button class="chip" data-code="75457" type="button">75457 · Super Star Destroyer</button>
+      <button class="chip" data-code="10497" type="button">10497 · Galaxy Explorer</button>
+      <button class="chip" data-code="21034" type="button">21034 · Londra</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="status" aria-live="polite"></section>
+  <section id="product"></section>
+  <div id="toolbar">
+    <div class="tbar">
+      <div class="tcount" id="tcount"></div>
+      <button class="gbtn" id="selAll" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>
+        <span id="selAllTxt">Seleziona tutto</span>
+      </button>
+      <button class="gbtn" id="copyAll" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg>
+        Copia URL
+      </button>
+      <button class="gbtn primary" id="saveAll" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 19h14"/></svg>
+        <span id="saveAllTxt">Salva in Foto</span>
+      </button>
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+  <section id="results"></section>
+</main>
+
+<footer class="wrap">
+  Le immagini e i video appartengono al Gruppo LEGO. Questo strumento non è affiliato né approvato da LEGO System A/S.
+</footer>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Anteprima">
+  <button class="lbtn" id="lbClose" aria-label="Chiudi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <button class="lbtn" id="lbPrev" aria-label="Precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg></button>
+  <button class="lbtn" id="lbNext" aria-label="Successivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6 6 6-6 6"/></svg></button>
+  <div class="stage" id="lbStage"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   Costanti
+   Il CDN LEGO espone gli header CORS: i file originali si leggono
+   direttamente, senza proxy e senza ricompressione. Serve un solo
+   servizio esterno, per superare il bot-check sulla pagina prodotto.
+   ============================================================ */
+const READER = "https://r.jina.ai/";
+const FALLBACKS = ["en-us", "en-gb", "de-de"];   // store di ripiego
+
+/* ============================================================
+   Utility
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const el = (tag, cls, html) => { const n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; };
+const basename = u => { try { return decodeURIComponent(new URL(u).pathname.split("/").pop()) || "file"; } catch { return "file"; } };
+const fmtBytes = b => b == null ? "" : b < 1024 ? b+" B" : b < 1048576 ? (b/1024).toFixed(0)+" KB" : (b/1048576).toFixed(1)+" MB";
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const ICO = {
+  down : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 19h14"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  copy : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg>',
+  ext  : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M19 5 11 13"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>',
+  play : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>',
+  warn : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.3h.01"/></svg>',
+  info : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.7h.01"/></svg>',
+};
+
+let toastTimer;
+function toast(msg, icon = ICO.check) {
+  const t = $("#toast");
+  t.innerHTML = icon + "<span></span>";
+  t.querySelector("span").textContent = msg;
+  t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("on"), 2800);
+}
+
+/* ============================================================
+   Salvataggio
+   Su telefono apre il pannello di condivisione di sistema
+   ("Salva su Foto"); su computer scarica il file.
+   ============================================================ */
+const canShare = files => {
+  try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files })); }
+  catch { return false; }
+};
+
+function saveBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = el("a");
+  a.href = url; a.download = filename; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+/** Scarica i byte originali, senza toccarli. */
+async function fetchFile(a, onProgress) {
+  const res = await fetch(a.url);
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const type = res.headers.get("content-type") || "application/octet-stream";
+  const total = +(res.headers.get("content-length") || 0);
+
+  let blob;
+  if (onProgress && res.body && total) {
+    const reader = res.body.getReader();
+    const chunks = [];
+    let got = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      got += value.length;
+      onProgress(got / total);
+    }
+    blob = new Blob(chunks, { type });
+  } else {
+    blob = await res.blob();
+  }
+  return new File([blob], a.name, { type });
+}
+
+/* Il telefono può mandare i file a Foto? */
+const PHONE = canShare([new File([new Uint8Array([1])], "a.jpg", { type: "image/jpeg" })]);
+
+/**
+ * Apre il pannello di sistema. Da chiamare SUBITO dentro il gestore del tocco:
+ * iOS concede la condivisione solo entro pochi secondi dall'attivazione utente,
+ * quindi i file devono essere già in memoria e prima non ci deve essere nessun await.
+ */
+function shareNow(files) {
+  return navigator.share({ files });
+}
+
+/* Un lotto per volta: iOS tiene in memoria solo quello che sta per salvare. */
+const BATCH_FILES = 8;
+const BATCH_BYTES = 80 * 1024 * 1024;
+
+/**
+ * Divide la selezione in lotti, tenendo immagini e video separati:
+ * così il pannello iOS propone "Salva N immagini" oppure "Salva video",
+ * invece di un'azione generica che non finisce nel rullino.
+ */
+function planBatches(assets) {
+  const out = [];
+  for (const list of [assets.filter(a => a.kind === "image"), assets.filter(a => a.kind === "video")]) {
+    let cur = [], bytes = 0;
+    for (const a of list) {
+      if (cur.length && (cur.length >= BATCH_FILES || bytes + (a.bytes || 0) > BATCH_BYTES)) {
+        out.push(cur); cur = []; bytes = 0;
+      }
+      cur.push(a); bytes += a.bytes || 0;
+    }
+    if (cur.length) out.push(cur);
+  }
+  return out;
+}
+
+/* ============================================================
+   Sorgente dati
+   ============================================================ */
+function parseInput(raw) {
+  const s = raw.trim();
+  if (!s) return null;
+  if (/lego\.com/i.test(s)) {
+    try {
+      const u = new URL(s.startsWith("http") ? s : "https://" + s);
+      const m = u.pathname.match(/\/([a-z]{2}-[a-z]{2})\/product\/([^/?#]+)/i);
+      if (m) return { locale: m[1].toLowerCase(), slug: m[2], code: (m[2].match(/(\d{4,7})$/) || [])[1] || m[2] };
+    } catch { /* non è un URL valido */ }
+  }
+  const digits = s.match(/\d{4,7}/);
+  return digits ? { locale: null, slug: digits[0], code: digits[0] } : null;
+}
+
+async function fetchPage(locale, slug) {
+  const res = await fetch(READER + `https://www.lego.com/${locale}/product/${slug}`, {
+    headers: { "x-return-format": "html" },
+  });
+  if (!res.ok) { const e = new Error("reader-" + res.status); e.status = res.status; throw e; }
+  return res.text();
+}
+
+/** Risolve i riferimenti {type:"id"} della cache Apollo. */
+function resolve(ap, node, depth = 0) {
+  if (depth > 8 || node == null) return node;
+  if (Array.isArray(node)) return node.map(n => resolve(ap, n, depth + 1));
+  if (typeof node === "object") {
+    if (node.type === "id" && typeof node.id === "string") return resolve(ap, ap[node.id], depth + 1);
+    const out = {};
+    for (const k in node) out[k] = resolve(ap, node[k], depth + 1);
+    return out;
+  }
+  return node;
+}
+
+function findProduct(ap, want) {
+  const cands = [];
+  for (const [k, v] of Object.entries(ap)) {
+    if (k[0] === "$" || !v || typeof v !== "object") continue;
+    if (Array.isArray(v.productMediaAssets) && v.productMediaAssets.length) cands.push(v);
+  }
+  if (!cands.length) return null;
+  const w = String(want || "").toLowerCase();
+  return cands.find(p => String(p.productCode || "").toLowerCase() === w)
+      || cands.find(p => String(p.slug || "").toLowerCase().includes(w))
+      || cands[0];
+}
+
+function parsePage(html, want) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const tag = doc.querySelector("#__NEXT_DATA__");
+  if (!tag) return null;
+
+  let data;
+  try { data = JSON.parse(tag.textContent); } catch { return null; }
+  const ap = data?.props?.pageProps?.__APOLLO_STATE__;
+  if (!ap) return null;
+
+  const prod = findProduct(ap, want);
+  if (!prod) return null;
+
+  const variant = resolve(ap, prod.variant) || {};
+  const attrs = variant.attributes || {};
+  const price = variant.price || {};
+  const code = String(prod.productCode || want || "");
+
+  const gallery = [], seen = new Set();
+
+  for (const ref of prod.productMediaAssets) {
+    const a = resolve(ap, ref);
+    if (!a) continue;
+
+    if (a.__typename === "ProductAssetImage" && a.url) {
+      if (seen.has(a.url)) continue;
+      seen.add(a.url);
+      gallery.push({ kind: "image", url: a.url, alt: a.altText || "", name: basename(a.url) });
+
+    } else if (a.__typename === "ProductAssetVideo") {
+      const v = a.video || {};
+      const fmts = (v.videoFormats || []).filter(f => f && f.url);
+      if (!fmts.length) continue;
+      const best = fmts.find(f => /highest/i.test(f.quality || "")) || fmts[0];
+      if (seen.has(best.url)) continue;
+      seen.add(best.url);
+      if (v.thumbnail16x9) seen.add(v.thumbnail16x9);
+      gallery.push({
+        kind: "video", url: best.url, name: basename(best.url),
+        title: v.title || "", poster: v.thumbnail16x9 || v.thumbnail1x1 || "", formats: fmts,
+      });
+    }
+  }
+
+  // Media della pagina fuori dalla galleria (sezioni editoriali, box art, poster)
+  const extra = [];
+  const re = /https:\/\/www\.lego\.com\/cdn\/cs\/set\/assets\/[^"\\ ]+?\.(?:jpg|jpeg|png|webp|gif|mp4)/gi;
+  for (const url of new Set(JSON.stringify(ap).match(re) || [])) {
+    if (seen.has(url)) continue;
+    const file = basename(url);
+    if (code && !file.includes(code)) continue;   // scarta i prodotti consigliati
+    seen.add(url);
+    extra.push(/\.mp4$/i.test(url)
+      ? { kind: "video", url, name: file, title: "", poster: "", formats: [{ url, quality: "" }] }
+      : { kind: "image", url, alt: "", name: file });
+  }
+
+  return {
+    code, name: prod.name || "", slug: prod.slug || "", pdpPath: prod.pdpPath || "",
+    price: price.formattedAmount || "", pieces: attrs.pieceCount || null,
+    age: attrs.ageRange || "", availability: attrs.availabilityText || "",
+    isNew: !!attrs.isNew, gallery, extra,
+  };
+}
+
+/* Anteprima ridimensionata dal CDN LEGO: mantiene la trasparenza dei PNG. */
+const thumbUrl = (url, w = 560) =>
+  /\.mp4$/i.test(url) ? url : `${url}?fit=bounds&quality=80&width=${w}&dpr=1`;
+
+/* ============================================================
+   Stato
+   ============================================================ */
+const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false };
+
+/* ============================================================
+   Ricerca
+   ============================================================ */
+function setStatus(html) {
+  const s = $("#status");
+  if (!html) { s.classList.remove("on"); s.innerHTML = ""; return; }
+  s.innerHTML = html; s.classList.add("on");
+}
+const showError = (title, body) =>
+  setStatus(`<div class="err"><h3>${ICO.warn}${title}</h3>${body}</div>`);
+
+async function search(raw) {
+  if (state.busy) return;
+  const parsed = parseInput(raw);
+  if (!parsed) {
+    showError("Codice non riconosciuto", "<p>Inserisci il numero del set (4–7 cifre), per esempio <b>75457</b>, oppure incolla l'indirizzo della pagina prodotto.</p>");
+    return;
+  }
+
+  state.busy = true;
+  $("#go").disabled = true;
+  $("#product").classList.remove("on");
+  $("#toolbar").classList.remove("on");
+  $("#results").classList.remove("on");
+  $("#results").innerHTML = "";
+  setStatus(`<div class="spinner"></div><div class="status-text">Recupero la pagina del set ${parsed.code}…</div>`);
+
+  const chosen = parsed.locale || $("#locale").value;
+  const order = [chosen, ...FALLBACKS.filter(l => l !== chosen)];
+
+  let product = null, lastErr = null;
+  for (let i = 0; i < order.length; i++) {
+    const loc = order[i];
+    if (i > 0) setStatus(`<div class="spinner"></div><div class="status-text">Non trovato su ${chosen.toUpperCase()}. Provo lo store ${loc.slice(-2).toUpperCase()}…</div>`);
+    try {
+      const p = parsePage(await fetchPage(loc, parsed.slug), parsed.code);
+      if (p && (p.gallery.length || p.extra.length)) { product = p; product.locale = loc; break; }
+    } catch (e) {
+      lastErr = e;
+      if (e.status === 429) break;
+    }
+    if (i < order.length - 1) await sleep(120);
+  }
+
+  state.busy = false;
+  $("#go").disabled = false;
+
+  if (!product) {
+    if (lastErr && lastErr.status === 429) {
+      showError("Troppe richieste ravvicinate", "<p>Il servizio che legge la pagina LEGO ha un limite di richieste al minuto. Aspetta una trentina di secondi e riprova.</p>");
+    } else {
+      showError("Nessun set trovato", `<p>Non ho trovato una pagina prodotto per <b>${parsed.code}</b> su nessuno store LEGO.</p><ul>
+        <li>Controlla il numero: è quello stampato sulla scatola, senza la variante finale (75457, non 75457-1).</li>
+        <li>I set ritirati da tempo non hanno più una pagina sullo shop.</li>
+        <li>Se la pagina esiste ma non viene letta, incolla qui il suo indirizzo completo.</li></ul>`);
+    }
+    return;
+  }
+
+  setStatus("");
+  state.product = product;
+  state.assets = [...product.gallery, ...product.extra];
+  state.selected = new Set(state.assets.map((_, i) => i));
+  render();
+}
+
+/* ============================================================
+   Render
+   ============================================================ */
+function render() {
+  const p = state.product;
+
+  const cover = p.gallery.find(a => a.kind === "image") || p.extra.find(a => a.kind === "image");
+  const tags = [];
+  if (p.pieces) tags.push(`<span class="tag">${p.pieces.toLocaleString("it-IT")} pezzi</span>`);
+  if (p.age) tags.push(`<span class="tag">${p.age}</span>`);
+  if (p.price) tags.push(`<span class="tag">${p.price}</span>`);
+  if (p.isNew) tags.push(`<span class="tag accent">Novità</span>`);
+  if (p.availability) tags.push(`<span class="tag">${p.availability}</span>`);
+
+  const link = p.pdpPath ? `https://www.lego.com${p.pdpPath}` : `https://www.lego.com/${p.locale}/product/${p.slug || p.code}`;
+  $("#product").innerHTML = `
+    <div class="phead">
+      ${cover ? `<img class="phead-img" src="${thumbUrl(cover.url, 300)}" alt="" loading="lazy">` : ""}
+      <div class="phead-body">
+        <h2></h2>
+        <div class="code">Set ${p.code} · store ${(p.locale || "").toUpperCase()}</div>
+        <div class="meta">${tags.join("")}</div>
+        <a class="phead-link" href="${link}" target="_blank" rel="noopener">Apri la pagina su LEGO.com ${ICO.ext}</a>
+      </div>
+    </div>`;
+  $("#product h2").textContent = p.name || `Set ${p.code}`;
+  $("#product").classList.add("on");
+
+  const res = $("#results");
+  res.innerHTML = "";
+  let base = 0;
+  if (p.gallery.length) { res.append(group("Galleria prodotto", p.gallery, base)); base += p.gallery.length; }
+  if (p.extra.length)   { res.append(group("Altri media della pagina", p.extra, base)); }
+
+  res.append(el("div", "note", `${ICO.info}<div><b>Ogni file arriva come sta sullo shop LEGO:</b> stessa risoluzione, stesso formato, byte identici. I PNG dei render restano senza sfondo, con la trasparenza intatta.${
+    PHONE
+      ? " Il salvataggio è in <b>due tocchi</b>: il primo scarica, poi il pulsante diventa verde e il secondo apre il pannello iOS — lì scegli <b>Salva immagine</b> o <b>Salva video</b> per metterli nel rullino. Immagini e video partono in lotti separati."
+      : ""}</div>`));
+
+  res.classList.add("on");
+  $("#toolbar").classList.add("on");
+
+  updateBar();
+  loadMeta();
+
+  const y = $("#product").getBoundingClientRect().top + window.scrollY - 20;
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+function group(title, items, offset) {
+  const frag = document.createDocumentFragment();
+  frag.append(el("div", "group-title", `<span>${title}</span>`));
+  const grid = el("div", "grid");
+  items.forEach((a, i) => grid.append(card(a, offset + i)));
+  frag.append(grid);
+  return frag;
+}
+
+function card(a, idx) {
+  const c = el("div", "card");
+  c.dataset.idx = idx;
+  c.style.animationDelay = Math.min(idx * 22, 400) + "ms";
+  if (state.selected.has(idx)) c.classList.add("sel");
+
+  const isVid = a.kind === "video";
+  const ext = (a.name.split(".").pop() || "").toUpperCase();
+  const src = isVid ? (a.poster ? thumbUrl(a.poster, 480) : "") : thumbUrl(a.url);
+
+  c.innerHTML = `
+    <div class="thumb ${isVid ? "video" : ""}">
+      ${src ? `<img alt="" loading="lazy" src="${src}">` : `<div class="ph"></div>`}
+      ${isVid ? `<span class="badge vid">Video</span><div class="play"><i>${ICO.play}</i></div>` : `<span class="badge">${ext}</span>`}
+    </div>
+    <button class="check" type="button" aria-label="Seleziona">${ICO.check}</button>
+    <div class="info">
+      <div class="fname" title="${a.name}">${a.name}</div>
+      <div class="fmeta">…</div>
+      <div class="acts">
+        <button class="act" data-act="save" type="button">${ICO.down} Salva</button>
+        ${isVid ? `<a class="act icon" href="${a.url}" target="_blank" rel="noopener" aria-label="Apri">${ICO.ext}</a>` : ""}
+        <button class="act icon" data-act="copy" type="button" aria-label="Copia indirizzo">${ICO.copy}</button>
+      </div>
+    </div>`;
+
+  const img = c.querySelector(".thumb img");
+  if (img) img.addEventListener("error", () => img.replaceWith(el("div", "broken", "anteprima non disponibile")), { once: true });
+
+  c.querySelector(".thumb").addEventListener("click", () => openLightbox(idx));
+  c.querySelector(".check").addEventListener("click", e => { e.stopPropagation(); toggle(idx); });
+  c.querySelector('[data-act="copy"]').addEventListener("click", async () => {
+    await navigator.clipboard.writeText(a.url);
+    toast("Indirizzo copiato");
+  });
+  c.querySelector('[data-act="save"]').addEventListener("click", ev => saveOne(a, ev.currentTarget));
+
+  return c;
+}
+
+/** Dimensioni reali e peso: pochi KB di richiesta, niente download completo. */
+async function loadMeta() {
+  const queue = state.assets.map((a, i) => ({ a, i }));
+
+  const dims = async a => {
+    if (a.kind !== "image") return null;
+    const r = await fetch(a.url, { headers: { Range: "bytes=0-65535" } });
+    const b = new Uint8Array(await r.arrayBuffer());
+    if (b[0] === 0x89 && b[1] === 0x50) {                       // PNG
+      const dv = new DataView(b.buffer);
+      return { w: dv.getUint32(16), h: dv.getUint32(20) };
+    }
+    if (b[0] === 0xFF && b[1] === 0xD8) {                       // JPEG
+      let i = 2;
+      while (i < b.length - 9) {
+        if (b[i] !== 0xFF) { i++; continue; }
+        const m = b[i + 1];
+        if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC)
+          return { h: (b[i + 5] << 8) | b[i + 6], w: (b[i + 7] << 8) | b[i + 8] };
+        i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+      }
+    }
+    return null;
+  };
+
+  const worker = async () => {
+    while (queue.length) {
+      const { a, i } = queue.shift();
+      const node = $(`.card[data-idx="${i}"] .fmeta`);
+      if (!node) continue;
+      const ext = (a.name.split(".").pop() || "").toUpperCase();
+      try {
+        const [head, d] = await Promise.all([
+          fetch(a.url, { method: "HEAD" }).then(r => +(r.headers.get("content-length") || 0)).catch(() => 0),
+          dims(a).catch(() => null),
+        ]);
+        a.bytes = head || null;
+        if (d) { a.width = d.w; a.height = d.h; }
+        node.textContent = [d ? `${d.w} × ${d.h}` : null, ext, fmtBytes(a.bytes) || null]
+          .filter(Boolean).join(" · ");
+      } catch {
+        node.textContent = ext;
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: 4 }, worker));
+}
+
+/* ============================================================
+   Selezione
+   ============================================================ */
+function toggle(idx) {
+  state.selected.has(idx) ? state.selected.delete(idx) : state.selected.add(idx);
+  const c = $(`.card[data-idx="${idx}"]`);
+  if (c) c.classList.toggle("sel", state.selected.has(idx));
+  updateBar();
+}
+
+function updateBar() {
+  const total = state.assets.length;
+  const sel = state.selected.size;
+  const nImg = state.assets.filter(a => a.kind === "image").length;
+  const nVid = total - nImg;
+  const weight = [...state.selected].reduce((s, i) => s + (state.assets[i].bytes || 0), 0);
+
+  $("#tcount").innerHTML = `${sel} selezionati <span>di ${total} · ${nImg} immagini${nVid ? ` · ${nVid} video` : ""}${weight ? ` · ${fmtBytes(weight)}` : ""}</span>`;
+  $("#selAllTxt").textContent = sel === total ? "Deseleziona tutto" : "Seleziona tutto";
+  if (job.phase === "idle") {
+    $("#saveAll").disabled = sel === 0;
+    $("#saveAllTxt").textContent = sel
+      ? (PHONE ? `Salva ${sel} in Foto` : `Scarica ${sel} file`)
+      : (PHONE ? "Salva in Foto" : "Scarica");
+  }
+  $("#copyAll").disabled = sel === 0;
+}
+
+/* ============================================================
+   Salvataggio nella libreria Foto
+   Due tempi, perché iOS li impone: prima scarico i file, poi un
+   tocco li manda al pannello di sistema senza nulla in mezzo.
+   ============================================================ */
+const job = { plan: [], index: 0, files: null, phase: "idle" };
+
+function resetJob() {
+  job.plan = []; job.index = 0; job.files = null; job.phase = "idle";
+  $("#progress").style.width = "0%";
+  $("#saveAll").classList.remove("ready");
+  updateBar();
+}
+
+/** Scarica il lotto corrente e mette il pulsante in attesa del tocco. */
+async function loadBatch() {
+  const btn = $("#saveAll"), txt = $("#saveAllTxt"), bar = $("#progress");
+  const batch = job.plan[job.index];
+  job.phase = "loading";
+  btn.disabled = true;
+  btn.classList.remove("ready");
+
+  const files = [];
+  let failed = 0;
+  for (let i = 0; i < batch.length; i++) {
+    const of = job.plan.length > 1 ? ` · lotto ${job.index + 1}/${job.plan.length}` : "";
+    txt.textContent = `Scarico ${i + 1}/${batch.length}${of}…`;
+    try {
+      files.push(await fetchFile(batch[i], pct => { bar.style.width = ((i + pct) / batch.length * 100) + "%"; }));
+    } catch { failed++; }
+    bar.style.width = ((i + 1) / batch.length * 100) + "%";
+  }
+
+  btn.disabled = false;
+  if (!files.length) {
+    toast("Download non riuscito", ICO.warn);
+    resetJob();
+    return;
+  }
+  if (failed) toast(`${failed} file non scaricati`, ICO.warn);
+
+  job.files = files;
+  const kind = files[0].type.startsWith("video") ? "video" : files.length > 1 ? "immagini" : "immagine";
+  job.phase = "ready";
+  btn.classList.add("ready");
+  txt.textContent = job.plan.length > 1
+    ? `Salva ${files.length} ${kind} (${job.index + 1}/${job.plan.length})`
+    : `Salva ${files.length} ${kind} in Foto`;
+}
+
+/** Passa al lotto successivo, o chiude. */
+function nextBatch(saved) {
+  job.files = null;
+  job.index++;
+  if (job.index < job.plan.length) { loadBatch(); return; }
+  toast(saved ? "Fatto — controlla in Foto" : "Annullato");
+  resetJob();
+}
+
+function onSaveAll() {
+  const btn = $("#saveAll");
+
+  // Secondo tocco: i file sono già pronti, si condivide senza alcun await prima.
+  if (job.phase === "ready") {
+    const files = job.files;
+    if (PHONE) {
+      shareNow(files).then(() => nextBatch(true), e => nextBatch(!(e && e.name === "AbortError")));
+    } else {
+      (async () => { for (const f of files) { saveBlob(f, f.name); await sleep(350); } nextBatch(true); })();
+    }
+    return;
+  }
+  if (job.phase === "loading") return;
+
+  const picked = [...state.selected].sort((x, y) => x - y).map(i => state.assets[i]);
+  if (!picked.length) return;
+  job.plan = planBatches(picked);
+  job.index = 0;
+  btn.classList.remove("ready");
+  loadBatch();
+}
+
+/** Un singolo file: stessa regola dei due tempi. */
+async function saveOne(a, btn) {
+  if (btn.dataset.ready === "1") {
+    const files = [btn.__file];
+    const done = () => { delete btn.dataset.ready; btn.__file = null; btn.innerHTML = ICO.down + " Salva"; };
+    if (PHONE) shareNow(files).then(() => { toast("Salvato in Foto"); done(); }, () => done());
+    else { saveBlob(files[0], files[0].name); toast(`${a.name} salvato`); done(); }
+    return;
+  }
+
+  btn.style.pointerEvents = "none";
+  btn.innerHTML = ICO.down + " 0%";
+  try {
+    btn.__file = await fetchFile(a, pct => { btn.innerHTML = ICO.down + " " + Math.round(pct * 100) + "%"; });
+    btn.dataset.ready = "1";
+    btn.innerHTML = ICO.share + (PHONE ? " Salva in Foto" : " Scarica");
+  } catch {
+    toast("Download non riuscito", ICO.warn);
+    btn.innerHTML = ICO.down + " Salva";
+  }
+  btn.style.pointerEvents = "";
+}
+
+/* ============================================================
+   Lightbox
+   ============================================================ */
+function openLightbox(idx) {
+  state.lbIndex = idx;
+  const a = state.assets[idx];
+  const stage = $("#lbStage");
+  stage.innerHTML = "";
+
+  if (a.kind === "video") {
+    const v = el("video");
+    v.src = a.url; v.controls = true; v.autoplay = true; v.playsInline = true;
+    if (a.poster) v.poster = a.poster;
+    stage.append(v);
+  } else {
+    const img = el("img");
+    img.src = thumbUrl(a.url, 1600);
+    img.alt = a.alt || a.name;
+    stage.append(img);
+  }
+
+  const bits = [a.width ? `${a.width} × ${a.height}` : null, fmtBytes(a.bytes) || null, `${idx + 1} di ${state.assets.length}`].filter(Boolean);
+  const cap = el("div", "cap");
+  cap.innerHTML = `<b></b> · ${bits.join(" · ")}`;
+  cap.querySelector("b").textContent = a.name;
+  stage.append(cap);
+
+  $("#lb").classList.add("on");
+  document.body.style.overflow = "hidden";
+}
+function closeLightbox() {
+  $("#lb").classList.remove("on");
+  $("#lbStage").innerHTML = "";
+  document.body.style.overflow = "";
+  state.lbIndex = -1;
+}
+function step(d) {
+  if (state.lbIndex < 0) return;
+  openLightbox((state.lbIndex + d + state.assets.length) % state.assets.length);
+}
+
+/* ============================================================
+   Eventi
+   ============================================================ */
+$("#form").addEventListener("submit", e => { e.preventDefault(); search($("#code").value); });
+$("#examples").addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  $("#code").value = b.dataset.code;
+  search(b.dataset.code);
+});
+$("#selAll").addEventListener("click", () => {
+  state.selected = state.selected.size === state.assets.length ? new Set() : new Set(state.assets.map((_, i) => i));
+  $$(".card").forEach(c => c.classList.toggle("sel", state.selected.has(+c.dataset.idx)));
+  updateBar();
+});
+$("#copyAll").addEventListener("click", async () => {
+  const urls = [...state.selected].sort((a, b) => a - b).map(i => state.assets[i].url);
+  await navigator.clipboard.writeText(urls.join("\n"));
+  toast(`${urls.length} indirizzi copiati`);
+});
+$("#saveAll").addEventListener("click", onSaveAll);
+$("#lbClose").addEventListener("click", closeLightbox);
+$("#lbPrev").addEventListener("click", () => step(-1));
+$("#lbNext").addEventListener("click", () => step(1));
+$("#lb").addEventListener("click", e => { if (e.target.id === "lb") closeLightbox(); });
+document.addEventListener("keydown", e => {
+  if (!$("#lb").classList.contains("on")) return;
+  if (e.key === "Escape") closeLightbox();
+  else if (e.key === "ArrowLeft") step(-1);
+  else if (e.key === "ArrowRight") step(1);
+});
+
+const q = new URLSearchParams(location.search).get("set");
+if (q) { $("#code").value = q; search(q); }
+$("#code").focus();
+})();
+</script>
+</body>
+</html>
