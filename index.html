@@ -6,7 +6,15 @@
 <title>Set Media — immagini e video dei set LEGO</title>
 <meta name="description" content="Inserisci il codice di un set LEGO e ottieni tutte le immagini e i video della pagina prodotto, alla risoluzione originale.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧱</text></svg>">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfbfd">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+<meta name="apple-mobile-web-app-title" content="Set Media">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script>
   // Prima di qualunque disegno: evita il lampo di tema sbagliato al caricamento.
   try {
@@ -55,6 +63,8 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--bg); color:var(--text);
+  /* tiene il footer appoggiato in fondo quando il contenuto è poco */
+  display:flex; flex-direction:column; min-height:100vh; min-height:100dvh;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
   font-size:17px; line-height:1.47; letter-spacing:-.01em;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
@@ -424,7 +434,9 @@ h1{
 :root[data-theme="dark"] #toast{background:rgba(240,240,245,.94); color:#111}
 
 /* ---------- footer ---------- */
+main{flex:1 0 auto}
 footer{
+  flex:none;
   border-top:1px solid var(--line); margin-top:60px; padding:34px 0 48px;
   font-size:12.5px; color:var(--text-3); text-align:center; line-height:1.6;
 }

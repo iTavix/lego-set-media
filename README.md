@@ -152,6 +152,21 @@ convenzioni costanti:
 Cambiando filtro la selezione si riallinea a ciò che si vede, così
 "filtra e salva" funziona senza dover riselezionare a mano.
 
+## Icone
+
+Generate dal logo su fondo scuro (i gialli e i bianchi del logo su fondo chiaro
+perdono contrasto). Un master 1024 × 1024 da cui derivano:
+
+| File                   | Uso                                    |
+|------------------------|----------------------------------------|
+| `favicon.ico`          | scheda del browser (16/32/48/64)       |
+| `icon-192.png`         | favicon ad alta risoluzione, manifest  |
+| `icon-512.png`         | manifest, schermata di avvio           |
+| `apple-touch-icon.png` | "Aggiungi a Home" su iPhone            |
+
+`site.webmanifest` la dichiara come app installabile (`display: standalone`),
+così dalla schermata Home parte a tutto schermo senza la barra di Safari.
+
 ## Logo
 
 `logo_itavix.png` è l'originale (3154 × 1502). `logo.png` è la versione per il
