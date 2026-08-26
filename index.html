@@ -7,6 +7,13 @@
 <meta name="description" content="Inserisci il codice di un set LEGO e ottieni tutte le immagini e i video della pagina prodotto, alla risoluzione originale.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧱</text></svg>">
+<script>
+  // Prima di qualunque disegno: evita il lampo di tema sbagliato al caricamento.
+  try {
+    var t = localStorage.getItem("setmedia.theme");
+    if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
 <style>
 /* ---------- tokens ---------- */
 :root{
@@ -23,7 +30,7 @@
   --maxw:1240px;
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme="light"]){
     --bg:#000000; --bg-elev:#1c1c1e; --bg-sunken:#141416;
     --text:#f5f5f7; --text-2:#a1a1a6; --text-3:#6e6e73;
     --line:rgba(255,255,255,.11); --line-strong:rgba(255,255,255,.2);
@@ -32,6 +39,16 @@
     --checker:rgba(255,255,255,.05);
     --shadow-s:0 1px 2px rgba(0,0,0,.5); --shadow-m:0 16px 40px rgba(0,0,0,.6);
   }
+}
+/* scelta esplicita dal pulsante: vince sulla preferenza di sistema */
+:root[data-theme="dark"]{
+    --bg:#000000; --bg-elev:#1c1c1e; --bg-sunken:#141416;
+    --text:#f5f5f7; --text-2:#a1a1a6; --text-3:#6e6e73;
+    --line:rgba(255,255,255,.11); --line-strong:rgba(255,255,255,.2);
+    --accent:#0a84ff; --accent-hover:#409cff; --accent-soft:rgba(10,132,255,.16);
+    --danger:#ff453a; --ok:#30d158;
+    --checker:rgba(255,255,255,.05);
+    --shadow-s:0 1px 2px rgba(0,0,0,.5); --shadow-m:0 16px 40px rgba(0,0,0,.6);
 }
 /* ---------- base ---------- */
 *,*::before,*::after{box-sizing:border-box}
@@ -50,6 +67,33 @@ a:hover{text-decoration:underline}
 .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
 @media (max-width:600px){ .wrap{padding:0 18px} body{font-size:16px} }
 
+/* ---------- pulsante tema ---------- */
+#theme{
+  position:fixed; top:16px; right:16px; z-index:60;
+  width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center;
+  background:color-mix(in srgb, var(--bg-elev) 82%, transparent);
+  -webkit-backdrop-filter:saturate(180%) blur(16px); backdrop-filter:saturate(180%) blur(16px);
+  border:1px solid var(--line); color:var(--text-2);
+  transition:color .2s, border-color .2s, transform .2s var(--ease);
+}
+#theme:hover{color:var(--text); border-color:var(--line-strong)}
+#theme:active{transform:scale(.92)}
+#theme svg{width:19px; height:19px}
+#theme .moon{display:none}
+:root[data-theme="dark"] #theme .moon{display:block}
+:root[data-theme="dark"] #theme .sun{display:none}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) #theme .moon{display:block}
+  :root:not([data-theme="light"]) #theme .sun{display:none}
+}
+
+/* ---------- logo ---------- */
+.logo{display:inline-block; line-height:0; transition:transform .28s var(--ease)}
+.logo:hover{transform:scale(1.04)}
+.logo img{height:96px; width:auto; max-width:min(88vw,420px); object-fit:contain}
+@media (max-width:600px){ .logo img{height:70px} }
+
 /* ---------- hero ---------- */
 .hero{padding:76px 0 40px; text-align:center}
 @media (max-width:600px){ .hero{padding:44px 0 28px} }
@@ -61,7 +105,7 @@ a:hover{text-decoration:underline}
 }
 .brand svg{width:16px; height:16px; color:var(--accent)}
 h1{
-  margin:0 0 14px; font-size:clamp(34px,5.2vw,60px); line-height:1.06;
+  margin:22px 0 14px; font-size:clamp(34px,5.2vw,60px); line-height:1.06;
   font-weight:680; letter-spacing:-.028em;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;
 }
@@ -195,6 +239,26 @@ h1{
 .gbtn.ready{background:var(--ok); border-color:var(--ok); animation:pulse 1.8s var(--ease) infinite}
 .gbtn.ready:hover{background:var(--ok); border-color:var(--ok)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,157,79,.45)}50%{box-shadow:0 0 0 7px rgba(29,157,79,0)}}
+.fbar{
+  display:flex; gap:7px; padding:0 0 12px; overflow-x:auto; scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.fbar::-webkit-scrollbar{display:none}
+.fchip{
+  flex:none; display:inline-flex; align-items:center; gap:6px;
+  height:32px; padding:0 13px; border-radius:100px; white-space:nowrap;
+  border:1px solid var(--line); background:var(--bg-elev);
+  font-size:13.5px; font-weight:510; color:var(--text-2);
+  transition:border-color .18s, background .18s, color .18s;
+}
+.fchip:hover{border-color:var(--line-strong); color:var(--text)}
+.fchip span{
+  font-size:11.5px; font-weight:590; color:var(--text-3);
+  font-variant-numeric:tabular-nums;
+}
+.fchip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.fchip.on span{color:rgba(255,255,255,.75)}
+
 .progress{
   position:absolute; left:0; bottom:0; height:2px; background:var(--accent);
   width:0; transition:width .25s var(--ease); border-radius:2px;
@@ -356,13 +420,22 @@ h1{
 }
 #toast.on{transform:translate(-50%,0); opacity:1}
 #toast svg{width:16px; height:16px}
-@media (prefers-color-scheme: dark){ #toast{background:rgba(240,240,245,.94); color:#111} }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) #toast{background:rgba(240,240,245,.94); color:#111} }
+:root[data-theme="dark"] #toast{background:rgba(240,240,245,.94); color:#111}
 
 /* ---------- footer ---------- */
 footer{
-  border-top:1px solid var(--line); margin-top:60px; padding:26px 0 44px;
+  border-top:1px solid var(--line); margin-top:60px; padding:34px 0 48px;
   font-size:12.5px; color:var(--text-3); text-align:center; line-height:1.6;
 }
+.made{display:flex; flex-direction:column; align-items:center; gap:12px; margin-bottom:20px}
+.made .logo img{height:52px}
+.made .by{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:14px; font-weight:510; color:var(--text-2); letter-spacing:-.008em;
+}
+.made .by svg{width:15px; height:15px; color:#e0245e; flex:none}
+.made .by a{color:var(--text); font-weight:590}
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.01ms !important; transition-duration:.01ms !important}
 }
@@ -370,14 +443,20 @@ footer{
 </head>
 <body>
 
+<button id="theme" type="button" aria-label="Cambia tema">
+  <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+  </svg>
+  <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z"/>
+  </svg>
+</button>
+
 <header class="hero">
   <div class="wrap">
-    <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V7.5a1.5 1.5 0 0 1 3 0V9"/><path d="M13 9V7.5a1.5 1.5 0 0 1 3 0V9"/>
-      </svg>
-      Set Media
-    </div>
+    <a class="logo" href="https://www.instagram.com/itavix_bricks/" target="_blank" rel="noopener" aria-label="iTavix su Instagram">
+      <img src="logo.png" alt="NEWS iTAVIX MOC" width="428" height="240">
+    </a>
     <h1>Tutte le immagini<br>e i video di un set.</h1>
     <p class="sub">Inserisci il codice del set. Recupero la galleria completa dallo shop LEGO, alla risoluzione originale.</p>
 
@@ -431,11 +510,21 @@ footer{
       </button>
       <div class="progress" id="progress"></div>
     </div>
+    <div class="fbar" id="fbar"></div>
   </div>
   <section id="results"></section>
 </main>
 
 <footer class="wrap">
+  <div class="made">
+    <a class="logo" href="https://www.instagram.com/itavix_bricks/" target="_blank" rel="noopener" aria-label="iTavix su Instagram">
+      <img src="logo.png" alt="NEWS iTAVIX MOC" width="428" height="240">
+    </a>
+    <span class="by">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.7s-7.6-4.8-9.4-9.1C1.2 8 3.2 4.6 6.6 4.6c2 0 3.5 1.1 4.4 2.4l1 1.4 1-1.4c.9-1.3 2.4-2.4 4.4-2.4 3.4 0 5.4 3.4 4 7-1.8 4.3-9.4 9.1-9.4 9.1Z"/></svg>
+      Creata con amore da <a href="https://www.instagram.com/itavix_bricks/" target="_blank" rel="noopener">iTavix</a> e Claude
+    </span>
+  </div>
   Le immagini e i video appartengono al Gruppo LEGO. Questo strumento non è affiliato né approvato da LEGO System A/S.
 </footer>
 
@@ -718,7 +807,73 @@ const thumbUrl = (url, w = 560) =>
 /* ============================================================
    Stato
    ============================================================ */
-const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false, access: null };
+const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false, access: null, filter: "tutti" };
+
+/* ============================================================
+   Filtri per tipo
+   I nomi file dello shop LEGO seguono convenzioni riconoscibili:
+   _NOBG per i render senza sfondo, Lifestyle per le foto ambientate,
+   box/boxprod per la confezione. Il resto è la foto prodotto.
+   ============================================================ */
+const CATEGORIE = [
+  ["nobg",      "Senza sfondo"],
+  ["lifestyle", "Lifestyle"],
+  ["box",       "Confezione"],
+  ["prodotto",  "Prodotto"],
+  ["video",     "Video"],
+];
+
+function categoria(a) {
+  if (a.kind === "video") return "video";
+  const n = a.name.toLowerCase();
+  if (n.includes("nobg")) return "nobg";
+  if (n.includes("lifestyle")) return "lifestyle";
+  if (n.includes("box")) return "box";
+  return "prodotto";
+}
+
+/** Mostra solo le categorie presenti: su molti set ce n'è una sola. */
+function renderFilters() {
+  const bar = $("#fbar");
+  const conta = new Map();
+  for (const a of state.assets) conta.set(a.cat, (conta.get(a.cat) || 0) + 1);
+
+  const voci = [["tutti", "Tutti", state.assets.length]];
+  for (const [id, etichetta] of CATEGORIE) {
+    if (conta.get(id)) voci.push([id, etichetta, conta.get(id)]);
+  }
+
+  // Con una sola categoria il filtro non serve a niente.
+  if (voci.length <= 2) { bar.innerHTML = ""; bar.style.display = "none"; return; }
+  bar.style.display = "";
+  bar.innerHTML = voci.map(([id, etichetta, n]) =>
+    `<button class="fchip${id === state.filter ? " on" : ""}" data-cat="${id}" type="button">${etichetta} <span>${n}</span></button>`
+  ).join("");
+}
+
+/** Applica il filtro e riporta la selezione a ciò che si vede. */
+function applyFilter(cat) {
+  state.filter = cat;
+  $$("#fbar .fchip").forEach(c => c.classList.toggle("on", c.dataset.cat === cat));
+
+  const visibili = new Set();
+  $$(".card").forEach(c => {
+    const idx = +c.dataset.idx;
+    const ok = cat === "tutti" || state.assets[idx].cat === cat;
+    c.hidden = !ok;
+    if (ok) visibili.add(idx);
+  });
+
+  // Un gruppo senza card visibili non deve lasciare il titolo orfano.
+  $$(".group-title").forEach(t => {
+    const grid = t.nextElementSibling;
+    t.hidden = !grid || ![...grid.children].some(c => !c.hidden);
+  });
+
+  state.selected = visibili;
+  $$(".card").forEach(c => c.classList.toggle("sel", state.selected.has(+c.dataset.idx)));
+  updateBar();
+}
 
 /** Come si arriva ai byte da qui. Impostata dalla sonda, usata da ogni download. */
 let route = url => url;
@@ -825,6 +980,8 @@ async function search(raw) {
   setStatus("");
   state.product = product;
   state.assets = [...product.gallery, ...product.extra];
+  for (const a of state.assets) a.cat = categoria(a);
+  state.filter = "tutti";
   state.selected = new Set(state.assets.map((_, i) => i));
   render();
 }
@@ -871,6 +1028,7 @@ function render() {
   res.classList.add("on");
   $("#toolbar").classList.add("on");
 
+  renderFilters();
   updateBar();
 
   // Prima di promettere un salvataggio, verifico che i byte siano leggibili.
@@ -999,9 +1157,10 @@ function toggle(idx) {
 }
 
 function updateBar() {
-  const total = state.assets.length;
+  const visti = state.filter === "tutti" ? state.assets : state.assets.filter(a => a.cat === state.filter);
+  const total = visti.length;
   const sel = state.selected.size;
-  const nImg = state.assets.filter(a => a.kind === "image").length;
+  const nImg = visti.filter(a => a.kind === "image").length;
   const nVid = total - nImg;
   const weight = [...state.selected].reduce((s, i) => s + (state.assets[i].bytes || 0), 0);
 
@@ -1142,7 +1301,10 @@ function openLightbox(idx) {
     stage.append(img);
   }
 
-  const bits = [a.width ? `${a.width} × ${a.height}` : null, fmtBytes(a.bytes) || null, `${idx + 1} di ${state.assets.length}`].filter(Boolean);
+  const visibili = $$(".card").filter(c => !c.hidden).map(c => +c.dataset.idx);
+  const pos = visibili.indexOf(idx);
+  const bits = [a.width ? `${a.width} × ${a.height}` : null, fmtBytes(a.bytes) || null,
+                pos >= 0 ? `${pos + 1} di ${visibili.length}` : null].filter(Boolean);
   const cap = el("div", "cap");
   cap.innerHTML = `<b></b> · ${bits.join(" · ")}`;
   cap.querySelector("b").textContent = a.name;
@@ -1159,7 +1321,10 @@ function closeLightbox() {
 }
 function step(d) {
   if (state.lbIndex < 0) return;
-  openLightbox((state.lbIndex + d + state.assets.length) % state.assets.length);
+  const visibili = $$(".card").filter(c => !c.hidden).map(c => +c.dataset.idx);
+  if (!visibili.length) return;
+  const pos = visibili.indexOf(state.lbIndex);
+  openLightbox(visibili[(pos + d + visibili.length) % visibili.length]);
 }
 
 /* ============================================================
@@ -1173,9 +1338,15 @@ $("#examples").addEventListener("click", e => {
   search(b.dataset.code);
 });
 $("#selAll").addEventListener("click", () => {
-  state.selected = state.selected.size === state.assets.length ? new Set() : new Set(state.assets.map((_, i) => i));
+  const visibili = $$(".card").filter(c => !c.hidden).map(c => +c.dataset.idx);
+  const tutte = visibili.every(i => state.selected.has(i));
+  state.selected = tutte ? new Set() : new Set(visibili);
   $$(".card").forEach(c => c.classList.toggle("sel", state.selected.has(+c.dataset.idx)));
   updateBar();
+});
+$("#fbar").addEventListener("click", e => {
+  const c = e.target.closest(".fchip");
+  if (c) applyFilter(c.dataset.cat);
 });
 $("#copyAll").addEventListener("click", async () => {
   const urls = [...state.selected].sort((a, b) => a - b).map(i => state.assets[i].url);
@@ -1192,6 +1363,20 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeLightbox();
   else if (e.key === "ArrowLeft") step(-1);
   else if (e.key === "ArrowRight") step(1);
+});
+
+/* ============================================================
+   Tema
+   Senza scelta esplicita si segue il sistema; il pulsante fissa
+   l'opposto di quello che si sta vedendo e lo ricorda.
+   ============================================================ */
+$("#theme").addEventListener("click", () => {
+  const scelto = document.documentElement.dataset.theme;
+  const attuale = scelto || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const nuovo = attuale === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = nuovo;
+  try { localStorage.setItem("setmedia.theme", nuovo); } catch {}
+  toast(nuovo === "dark" ? "Tema scuro" : "Tema chiaro");
 });
 
 const q = new URLSearchParams(location.search).get("set");

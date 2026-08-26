@@ -13,8 +13,12 @@ Pagina di esempio: https://www.lego.com/it-it/product/75457
 - Se il set non è sullo store italiano, prova da solo US, UK e DE.
 - Mostra la galleria completa: render, box art, foto lifestyle, video.
 - Per ogni file: dimensioni reali in pixel, formato e peso esatto.
+- **Filtra per tipo**: render senza sfondo, lifestyle, confezione, prodotto, video.
+  I filtri compaiono solo se il set ha più di una categoria.
 - **Salva** i file uno a uno o tutti insieme, video compresi.
 - Su telefono li manda nella libreria **Foto**; su computer li scarica.
+- Tema chiaro/scuro: segue il sistema, il pulsante in alto a destra lo forza
+  e la scelta resta memorizzata.
 
 I file arrivano **byte per byte identici all'originale**: nessuna ricompressione,
 nessun ridimensionamento, e i PNG dei render restano **senza sfondo**, con la
@@ -123,10 +127,37 @@ proxy configurato a mano → `/lego/…` sullo stesso dominio → richiesta dire
 (che funziona solo da `localhost`). Se nessuna funziona, lo dice invece di
 fallire in silenzio.
 
-Su GitHub Pages resta consultabile — galleria, anteprime, copia degli
-indirizzi — ma senza download, per il vincolo qui sopra.
+GitHub Pages non è più attivo per questo repo: da lì il download non poteva
+funzionare, e tenere online una copia monca creava solo confusione.
 
 ## Pubblicazione
 
 Le immagini e i video appartengono al Gruppo LEGO; lo strumento non è
 affiliato né approvato da LEGO System A/S.
+
+
+## Come sono divisi i filtri
+
+Le categorie si ricavano dai nomi file, che sullo shop LEGO seguono
+convenzioni costanti:
+
+| Categoria      | Riconosciuta da        |
+|----------------|------------------------|
+| Senza sfondo   | `_NOBG` nel nome       |
+| Lifestyle      | `Lifestyle`            |
+| Confezione     | `box` / `boxprod`      |
+| Video          | file `.mp4`            |
+| Prodotto       | tutto il resto         |
+
+Cambiando filtro la selezione si riallinea a ciò che si vede, così
+"filtra e salva" funziona senza dover riselezionare a mano.
+
+## Logo
+
+`logo_itavix.png` è l'originale (3154 × 1502). `logo.png` è la versione per il
+web: ritagliata ai pixel non trasparenti, ridotta a 428 × 240 e quantizzata a
+192 colori — da 398 KB a 29 KB, con scarto di colore medio 2,4/255 e
+trasparenza conservata. Rimanda a Instagram sia in testa sia nel footer.
+
+## Instagram
+https://www.instagram.com/itavix_bricks/
