@@ -292,6 +292,22 @@ h1{
 .act svg{width:13px; height:13px}
 .act.icon{flex:0 0 34px}
 
+/* ---------- setup proxy ---------- */
+.setup{
+  margin:16px 0 0; padding:18px 20px; border-radius:var(--r-l);
+  background:var(--bg-elev); border:1px solid var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+.setup h4{margin:0 0 6px; font-size:16px; font-weight:620; letter-spacing:-.015em; display:flex; align-items:center; gap:8px}
+.setup h4 svg{width:17px; height:17px; color:var(--accent); flex:none}
+.setup p{margin:0 0 10px; font-size:14px; color:var(--text-2); line-height:1.5}
+.setup code{font-size:12.5px; background:var(--bg-sunken); padding:2px 6px; border-radius:5px}
+.setup .row{display:flex; gap:8px; flex-wrap:wrap}
+.setup input{
+  flex:1 1 260px; min-width:0; height:40px; padding:0 14px; font-size:14px;
+  border:1px solid var(--line); border-radius:10px; background:var(--bg-sunken); outline:none;
+}
+.setup input:focus{border-color:var(--accent)}
+
 /* ---------- note ---------- */
 .note{
   display:flex; gap:12px; align-items:flex-start; margin:16px 0 0;
@@ -445,6 +461,21 @@ footer{
 const READER = "https://r.jina.ai/";
 const FALLBACKS = ["en-us", "en-gb", "de-de"];   // store di ripiego
 
+/*
+ * Il CDN LEGO riflette l'header Origin solo per localhost e per i domini
+ * lego.com: da un sito pubblico il browser non può leggere i byte dei file.
+ * Serve allora un passaggio intermedio che li restituisca identici.
+ * L'indirizzo si configura una volta e resta salvato in questo browser.
+ */
+const PROXY_KEY = "setmedia.proxy";
+let PROXY = "";
+try { PROXY = localStorage.getItem(PROXY_KEY) || ""; } catch { PROXY = ""; }
+
+const viaProxy = url =>
+  !PROXY ? url
+  : PROXY.includes("{url}") ? PROXY.replace("{url}", encodeURIComponent(url))
+  : PROXY + encodeURIComponent(url);
+
 /* ============================================================
    Utility
    ============================================================ */
@@ -496,7 +527,7 @@ function saveBlob(blob, filename) {
 
 /** Scarica i byte originali, senza toccarli. */
 async function fetchFile(a, onProgress) {
-  const res = await fetch(a.url);
+  const res = await fetch(viaProxy(a.url));
   if (!res.ok) throw new Error("HTTP " + res.status);
   const type = res.headers.get("content-type") || "application/octet-stream";
   const total = +(res.headers.get("content-length") || 0);
@@ -679,7 +710,36 @@ const thumbUrl = (url, w = 560) =>
 /* ============================================================
    Stato
    ============================================================ */
-const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false };
+const state = { product: null, assets: [], selected: new Set(), lbIndex: -1, busy: false, access: null };
+
+/** Il browser riesce a leggere i byte dal CDN (eventualmente via proxy)? */
+async function probeAccess(sampleUrl) {
+  try {
+    const r = await fetch(viaProxy(sampleUrl), { headers: { Range: "bytes=0-64" } });
+    return r.ok ? (PROXY ? "proxy" : "direct") : "blocked";
+  } catch { return "blocked"; }
+}
+
+/** Riquadro mostrato quando il download è bloccato: spiega e chiede l'indirizzo. */
+function setupBox() {
+  const box = el("div", "setup", `
+    <h4>${ICO.warn}Da qui LEGO non consente il download</h4>
+    <p>Le anteprime e gli indirizzi funzionano, ma il CDN LEGO lascia leggere i file
+    solo da <code>localhost</code> e dai domini <code>lego.com</code>. Per salvare in Foto
+    serve un passaggio intermedio che restituisca gli stessi byte: incolla qui il suo indirizzo,
+    con <code>{url}</code> al posto del file.</p>
+    <div class="row">
+      <input type="url" id="proxyIn" placeholder="https://tuo-proxy.workers.dev/?url={url}" value="${PROXY.replace(/"/g, "&quot;")}">
+      <button class="gbtn primary" id="proxySave" type="button">Salva e riprova</button>
+    </div>`);
+  box.querySelector("#proxySave").addEventListener("click", () => {
+    const v = box.querySelector("#proxyIn").value.trim();
+    try { v ? localStorage.setItem(PROXY_KEY, v) : localStorage.removeItem(PROXY_KEY); } catch {}
+    PROXY = v;
+    search($("#code").value || state.product?.code || "");
+  });
+  return box;
+}
 
 /* ============================================================
    Ricerca
@@ -790,7 +850,20 @@ function render() {
   $("#toolbar").classList.add("on");
 
   updateBar();
-  loadMeta();
+
+  // Prima di promettere un salvataggio, verifico che i byte siano leggibili.
+  const sample = state.assets[0];
+  probeAccess(sample.url).then(mode => {
+    state.access = mode;
+    if (mode === "blocked") {
+      $("#results").prepend(setupBox());
+      $("#saveAll").disabled = true;
+      $("#saveAllTxt").textContent = "Download non disponibile";
+      $$('.act[data-act="save"]').forEach(b => { b.disabled = true; b.style.opacity = ".4"; });
+    } else {
+      loadMeta();
+    }
+  });
 
   const y = $("#product").getBoundingClientRect().top + window.scrollY - 20;
   window.scrollTo({ top: y, behavior: "smooth" });
@@ -851,7 +924,7 @@ async function loadMeta() {
 
   const dims = async a => {
     if (a.kind !== "image") return null;
-    const r = await fetch(a.url, { headers: { Range: "bytes=0-65535" } });
+    const r = await fetch(viaProxy(a.url), { headers: { Range: "bytes=0-65535" } });
     const b = new Uint8Array(await r.arrayBuffer());
     if (b[0] === 0x89 && b[1] === 0x50) {                       // PNG
       const dv = new DataView(b.buffer);
@@ -878,7 +951,7 @@ async function loadMeta() {
       const ext = (a.name.split(".").pop() || "").toUpperCase();
       try {
         const [head, d] = await Promise.all([
-          fetch(a.url, { method: "HEAD" }).then(r => +(r.headers.get("content-length") || 0)).catch(() => 0),
+          fetch(viaProxy(a.url), { method: "HEAD" }).then(r => +(r.headers.get("content-length") || 0)).catch(() => 0),
           dims(a).catch(() => null),
         ]);
         a.bytes = head || null;
@@ -912,7 +985,7 @@ function updateBar() {
 
   $("#tcount").innerHTML = `${sel} selezionati <span>di ${total} · ${nImg} immagini${nVid ? ` · ${nVid} video` : ""}${weight ? ` · ${fmtBytes(weight)}` : ""}</span>`;
   $("#selAllTxt").textContent = sel === total ? "Deseleziona tutto" : "Seleziona tutto";
-  if (job.phase === "idle") {
+  if (job.phase === "idle" && state.access !== "blocked") {
     $("#saveAll").disabled = sel === 0;
     $("#saveAllTxt").textContent = sel
       ? (PHONE ? `Salva ${sel} in Foto` : `Scarica ${sel} file`)

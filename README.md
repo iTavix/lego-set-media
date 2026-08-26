@@ -66,6 +66,28 @@ condizione che iOS richiede — e che nessun lotto mischia immagini e video.
 
 Nessuna libreria esterna, nessun build step: un unico `index.html`.
 
+## Il vincolo CORS del CDN LEGO
+
+`www.lego.com/cdn/cs/set/assets/…` riflette l'header `Origin` **solo** per
+`localhost` (qualsiasi porta) e per i domini `lego.com`. Verificato:
+
+| Origin                     | `Access-Control-Allow-Origin` |
+|----------------------------|-------------------------------|
+| `http://localhost:8931`    | riflesso — consentito         |
+| `https://www.lego.com`     | riflesso — consentito         |
+| `https://itavix.github.io` | assente — bloccato            |
+| `https://example.com`      | assente — bloccato            |
+
+Conseguenza: **servita da localhost l'app scarica tutto**; servita da un dominio
+pubblico mostra galleria, anteprime e indirizzi, ma non può leggere i byte dei
+file. In quel caso compare un riquadro che chiede l'indirizzo di un passaggio
+intermedio (`{url}` al posto del file), salvato poi in `localStorage`.
+
+Nessun proxy pubblico gratuito si è rivelato utilizzabile: `allorigins`,
+`codetabs`, `corsproxy.io`, `corsfix`, `cors.lol`, `cors.eu.org` rispondono
+403/429/522 o richiedono un piano a pagamento. `images.weserv.nl` funziona ma
+ricomprime (quindi niente byte originali) e non gestisce i video.
+
 ## Limiti noti
 
 - `r.jina.ai` senza chiave ha un limite di richieste al minuto: cercando molti
