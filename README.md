@@ -157,7 +157,7 @@ Cambiando filtro la selezione si riallinea a ciò che si vede, così
 `logo_itavix.png` è l'originale (3154 × 1502). `logo.png` è la versione per il
 web: ritagliata ai pixel non trasparenti, ridotta a 428 × 240 e quantizzata a
 192 colori — da 398 KB a 29 KB, con scarto di colore medio 2,4/255 e
-trasparenza conservata. Rimanda a Instagram sia in testa sia nel footer.
+trasparenza conservata. Sta in testa alla pagina e rimanda a Instagram.
 
 ## Instagram
 https://www.instagram.com/itavix_bricks/
