@@ -50,17 +50,19 @@ condizione che iOS richiede — e che nessun lotto mischia immagini e video.
 
 ## Come funziona
 
-1. La pagina prodotto di lego.com è protetta da Cloudflare e non è leggibile
-   con una `fetch` diretta (risponde `403 Just a moment…`). L'app la legge
-   tramite `r.jina.ai`, che restituisce l'HTML renderizzato ed espone gli
-   header CORS necessari.
-2. Dall'HTML estrae `__NEXT_DATA__` → `__APOLLO_STATE__`, la cache dati del
-   sito. Da lì legge `productMediaAssets`, che contiene la galleria nell'ordine
-   giusto: `ProductAssetImage` (URL originale) e `ProductAssetVideo`
-   (formati MP4 + anteprima).
-3. Poi passa in rassegna il resto della cache per i media della pagina fuori
-   dalla galleria, tenendo solo i file il cui nome contiene il codice del set
-   (così i prodotti consigliati restano fuori).
+1. I dati del set arrivano dall'**API GraphQL di lego.com**
+   (`www.lego.com/api/graphql/ProductMedia`, query `product(slug:)`), che accetta
+   sia il codice (`75457`) sia lo slug dell'indirizzo e risponde nella lingua
+   dello store scelto (header `x-locale`). Restituisce `productMediaAssets`, la
+   galleria nell'ordine giusto: `ProductAssetImage` (URL originale) e
+   `ProductAssetVideo` (formati MP4 + anteprima), più nome, prezzo e pezzi.
+2. Come il CDN, l'API apre il CORS solo a `localhost`: da Cloudflare Pages la
+   richiesta passa da `/lego/api/graphql/ProductMedia` (vedi sotto).
+3. **Ripiego**: se l'API non è raggiungibile, l'app prova ancora a leggere la
+   pagina prodotto tramite `r.jina.ai` ed estrarre `__NEXT_DATA__` →
+   `__APOLLO_STATE__`. Da settembre 2026 però Cloudflare blocca anche jina
+   (risponde `Just a moment…`): era questo a far dire "Nessun set trovato"
+   a ogni ricerca.
 4. **Il CDN LEGO (`www.lego.com/cdn/cs/set/assets/…`) espone gli header CORS.**
    Quindi immagini e video si scaricano direttamente dal browser, senza proxy:
    è per questo che i file restano gli originali esatti.
@@ -94,8 +96,6 @@ ricomprime (quindi niente byte originali) e non gestisce i video.
 
 ## Limiti noti
 
-- `r.jina.ai` senza chiave ha un limite di richieste al minuto: cercando molti
-  set di fila l'app mostra un avviso e basta aspettare una trentina di secondi.
 - I set ritirati da anni non hanno più una pagina sullo shop e non sono
   recuperabili.
 - Con una selezione grossa il pannello si apre più volte, una per lotto:
@@ -114,7 +114,8 @@ Il codice resta su GitHub; Cloudflare lo prende dal repo e ripubblica a ogni pus
 Serve perché `functions/lego/[[path]].js` gira solo su Cloudflare: è una
 funzione che rilancia le richieste al CDN LEGO **dallo stesso dominio dell'app**,
 così la questione CORS non si pone e i byte arrivano identici, video inclusi.
-Non è un proxy aperto: accetta solo percorsi `cdn/cs/set/assets/…`.
+Non è un proxy aperto: accetta solo percorsi `cdn/cs/set/assets/…` e la
+singola chiamata `api/graphql/ProductMedia` (POST).
 
 Impostazioni del progetto Pages:
 

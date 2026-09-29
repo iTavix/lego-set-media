@@ -709,6 +709,91 @@ function parseInput(raw) {
   return digits ? { locale: null, slug: digits[0], code: digits[0] } : null;
 }
 
+/*
+ * La pagina prodotto è dietro il bot-check di Cloudflare, che ormai blocca
+ * anche r.jina.ai. L'API GraphQL del sito invece risponde: restituisce gli
+ * stessi productMediaAssets della pagina, già nell'ordine della galleria.
+ * Accetta sia il codice (75457) sia lo slug completo dell'indirizzo.
+ * Il CORS è aperto solo a localhost: altrove passa dalla funzione /lego/.
+ */
+const GQL_OP = "ProductMedia";
+const GQL_QUERY = `query ProductMedia($slug: String!) {
+  product(slug: $slug) {
+    __typename productCode name slug
+    productMediaAssets {
+      __typename
+      ... on ProductAssetImage { url altText }
+      ... on ProductAssetVideo { video { title thumbnail16x9 thumbnail1x1 videoFormats { url quality } } }
+    }
+    ... on SingleVariantProduct {
+      variant { price { formattedAmount } attributes { pieceCount ageRange availabilityText isNew } }
+    }
+  }
+}`;
+const GQL_URL = `https://www.lego.com/api/graphql/${GQL_OP}`;
+
+async function fetchApi(locale, slug) {
+  const init = {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-locale": locale.replace(/-(\w+)$/, (_, c) => "-" + c.toUpperCase()) },
+    body: JSON.stringify({ operationName: GQL_OP, query: GQL_QUERY, variables: { slug } }),
+  };
+  let lastErr;
+  for (const url of [GQL_URL, viaSameOrigin(GQL_URL)]) {
+    try {
+      const res = await fetch(url, init);
+      if (!res.ok || !/json/i.test(res.headers.get("content-type") || "")) {
+        lastErr = Object.assign(new Error("api-" + res.status), { status: res.status });
+        continue;
+      }
+      return (await res.json())?.data?.product || null;   // null = set inesistente su questo store
+    } catch (e) { lastErr = e; }   // CORS o rete: si prova la strada successiva
+  }
+  throw lastErr;
+}
+
+/** Converte la risposta dell'API nello stesso formato di parsePage. */
+function productFromApi(prod, want) {
+  const variant = prod.variant || {};
+  const attrs = variant.attributes || {};
+  const seen = new Set();
+  return {
+    code: String(prod.productCode || want || ""), name: prod.name || "", slug: prod.slug || "", pdpPath: "",
+    price: variant.price?.formattedAmount || "", pieces: attrs.pieceCount || null,
+    age: attrs.ageRange || "", availability: attrs.availabilityText || "",
+    isNew: !!attrs.isNew, gallery: galleryFrom(prod.productMediaAssets || [], seen), extra: [],
+  };
+}
+
+/** Galleria nell'ordine dello shop: immagini originali e video alla qualità più alta. */
+function galleryFrom(assets, seen, res = a => a) {
+  const gallery = [];
+  for (const ref of assets) {
+    const a = res(ref);
+    if (!a) continue;
+
+    if (a.__typename === "ProductAssetImage" && a.url) {
+      if (seen.has(a.url)) continue;
+      seen.add(a.url);
+      gallery.push({ kind: "image", url: a.url, alt: a.altText || "", name: basename(a.url) });
+
+    } else if (a.__typename === "ProductAssetVideo") {
+      const v = a.video || {};
+      const fmts = (v.videoFormats || []).filter(f => f && f.url);
+      if (!fmts.length) continue;
+      const best = fmts.find(f => /highest/i.test(f.quality || "")) || fmts[0];
+      if (seen.has(best.url)) continue;
+      seen.add(best.url);
+      if (v.thumbnail16x9) seen.add(v.thumbnail16x9);
+      gallery.push({
+        kind: "video", url: best.url, name: basename(best.url),
+        title: v.title || "", poster: v.thumbnail16x9 || v.thumbnail1x1 || "", formats: fmts,
+      });
+    }
+  }
+  return gallery;
+}
+
 async function fetchPage(locale, slug) {
   const res = await fetch(READER + `https://www.lego.com/${locale}/product/${slug}`, {
     headers: { "x-return-format": "html" },
@@ -761,31 +846,8 @@ function parsePage(html, want) {
   const price = variant.price || {};
   const code = String(prod.productCode || want || "");
 
-  const gallery = [], seen = new Set();
-
-  for (const ref of prod.productMediaAssets) {
-    const a = resolve(ap, ref);
-    if (!a) continue;
-
-    if (a.__typename === "ProductAssetImage" && a.url) {
-      if (seen.has(a.url)) continue;
-      seen.add(a.url);
-      gallery.push({ kind: "image", url: a.url, alt: a.altText || "", name: basename(a.url) });
-
-    } else if (a.__typename === "ProductAssetVideo") {
-      const v = a.video || {};
-      const fmts = (v.videoFormats || []).filter(f => f && f.url);
-      if (!fmts.length) continue;
-      const best = fmts.find(f => /highest/i.test(f.quality || "")) || fmts[0];
-      if (seen.has(best.url)) continue;
-      seen.add(best.url);
-      if (v.thumbnail16x9) seen.add(v.thumbnail16x9);
-      gallery.push({
-        kind: "video", url: best.url, name: basename(best.url),
-        title: v.title || "", poster: v.thumbnail16x9 || v.thumbnail1x1 || "", formats: fmts,
-      });
-    }
-  }
+  const seen = new Set();
+  const gallery = galleryFrom(prod.productMediaAssets, seen, ref => resolve(ap, ref));
 
   // Media della pagina fuori dalla galleria (sezioni editoriali, box art, poster)
   const extra = [];
@@ -960,13 +1022,18 @@ async function search(raw) {
   for (let i = 0; i < order.length; i++) {
     const loc = order[i];
     if (i > 0) setStatus(`<div class="spinner"></div><div class="status-text">Non trovato su ${chosen.toUpperCase()}. Provo lo store ${loc.slice(-2).toUpperCase()}…</div>`);
+    let p = null, apiOk = false;
     try {
-      const p = parsePage(await fetchPage(loc, parsed.slug), parsed.code);
-      if (p && (p.gallery.length || p.extra.length)) { product = p; product.locale = loc; break; }
-    } catch (e) {
-      lastErr = e;
-      if (e.status === 429) break;
+      const raw = await fetchApi(loc, parsed.slug);
+      apiOk = true;
+      if (raw) p = productFromApi(raw, parsed.code);
+    } catch (e) { lastErr = e; }
+    // Ripiego sulla pagina solo se l'API non è raggiungibile da qui.
+    if (!apiOk) {
+      try { p = parsePage(await fetchPage(loc, parsed.slug), parsed.code); }
+      catch (e) { lastErr = e; if (e.status === 429) break; }
     }
+    if (p && (p.gallery.length || p.extra.length)) { product = p; product.locale = loc; break; }
     if (i < order.length - 1) await sleep(120);
   }
 

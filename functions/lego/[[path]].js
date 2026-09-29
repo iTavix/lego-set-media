@@ -11,6 +11,9 @@
 
 const CONSENTITO = /^cdn\/cs\/set\/assets\/[A-Za-z0-9._\-/]+$/;
 
+// L'unica chiamata API dell'app: dati e galleria del set (il CORS è aperto solo a localhost).
+const API = "api/graphql/ProductMedia";
+
 // Header che vanno riportati al browser perché download e riproduzione funzionino.
 const DA_RIPORTARE = [
   "content-type", "content-length", "content-range",
@@ -18,11 +21,13 @@ const DA_RIPORTARE = [
 ];
 
 export async function onRequest({ request, params }) {
+  const percorso = (params.path || []).join("/");
+  if (percorso === API) return inoltraApi(request);
+
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Metodo non consentito", { status: 405 });
   }
 
-  const percorso = (params.path || []).join("/");
   if (!CONSENTITO.test(percorso)) {
     return new Response("Percorso non consentito", { status: 403 });
   }
@@ -56,5 +61,28 @@ export async function onRequest({ request, params }) {
   return new Response(request.method === "HEAD" ? null : risposta.body, {
     status: risposta.status,
     headers: uscita,
+  });
+}
+
+async function inoltraApi(request) {
+  if (request.method !== "POST") return new Response("Metodo non consentito", { status: 405 });
+  let risposta;
+  try {
+    risposta = await fetch("https://www.lego.com/" + API, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-locale": request.headers.get("x-locale") || "it-IT",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Referer": "https://www.lego.com/",
+      },
+      body: await request.text(),
+    });
+  } catch (e) {
+    return new Response("API LEGO irraggiungibile: " + e.message, { status: 502 });
+  }
+  return new Response(risposta.body, {
+    status: risposta.status,
+    headers: { "content-type": risposta.headers.get("content-type") || "application/json" },
   });
 }
